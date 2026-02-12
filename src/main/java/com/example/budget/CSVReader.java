@@ -24,12 +24,25 @@ public class CSVReader {
                      .withTrim())) {
 
             for (CSVRecord csvRecord : csvParser) {
-                LocalDate date = LocalDate.parse(csvRecord.get("date"), DATE_FORMATTER);
-                String category = csvRecord.get("category");
-                String description = csvRecord.get("description");
-                double amount = Double.parseDouble(csvRecord.get("amount"));
+                long rowNumber = csvRecord.getRecordNumber();
+                try {
+                    // Validate required columns exist
+                    if (!csvRecord.isMapped("date") || !csvRecord.isMapped("category") || 
+                        !csvRecord.isMapped("description") || !csvRecord.isMapped("amount")) {
+                        throw new IllegalArgumentException(
+                            "CSV file must contain columns: date, category, description, amount");
+                    }
 
-                records.add(new SpendingRecord(date, category, description, amount));
+                    LocalDate date = LocalDate.parse(csvRecord.get("date"), DATE_FORMATTER);
+                    String category = csvRecord.get("category");
+                    String description = csvRecord.get("description");
+                    double amount = Double.parseDouble(csvRecord.get("amount"));
+
+                    records.add(new SpendingRecord(date, category, description, amount));
+                } catch (Exception e) {
+                    throw new IOException(String.format(
+                        "Error parsing row %d: %s", rowNumber, e.getMessage()), e);
+                }
             }
         }
 

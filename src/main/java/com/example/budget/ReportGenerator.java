@@ -1,8 +1,10 @@
 package com.example.budget;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ReportGenerator {
 
@@ -40,10 +42,15 @@ public class ReportGenerator {
         report.append("Recent Transactions:\n");
         report.append("--------------------\n");
         
+        // Sort records by date in descending order to show most recent first
+        List<SpendingRecord> sortedRecords = records.stream()
+                .sorted(Comparator.comparing(SpendingRecord::getDate).reversed())
+                .collect(Collectors.toList());
+        
         // Display up to 10 most recent transactions
-        int displayCount = Math.min(10, records.size());
-        for (int i = records.size() - displayCount; i < records.size(); i++) {
-            report.append(records.get(i).toString()).append("\n");
+        int displayCount = Math.min(10, sortedRecords.size());
+        for (int i = 0; i < displayCount; i++) {
+            report.append(sortedRecords.get(i).toString()).append("\n");
         }
 
         report.append("\n=====================================\n");
