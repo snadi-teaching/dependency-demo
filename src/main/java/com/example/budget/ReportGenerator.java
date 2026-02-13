@@ -18,14 +18,19 @@ public class ReportGenerator {
         StringBuilder report = new StringBuilder();
         report.append("\n========== SPENDING REPORT ==========\n\n");
 
-        // Calculate total spending
-        double totalSpending = 0;
+        // Calculate total spending and category totals
         Map<String, Double> categoryTotals = new HashMap<>();
+        Map<YearMonth, Double> monthlyTotals = new HashMap<>();
 
         for (SpendingRecord record : records) {
-            totalSpending += record.getAmount();
             categoryTotals.merge(record.getCategory(), record.getAmount(), Double::sum);
+            YearMonth month = YearMonth.from(record.getDate());
+            monthlyTotals.merge(month, record.getAmount(), Double::sum);
         }
+
+        final double totalSpending = records.stream()
+                .mapToDouble(SpendingRecord::getAmount)
+                .sum();
 
         // Display summary
         report.append("Total Spending: $").append(String.format("%.2f", totalSpending)).append("\n");
@@ -43,13 +48,6 @@ public class ReportGenerator {
         report.append("\n");
         report.append("Spending by Month:\n");
         report.append("--------------------\n");
-        
-        // Group spending by month
-        Map<YearMonth, Double> monthlyTotals = new HashMap<>();
-        for (SpendingRecord record : records) {
-            YearMonth month = YearMonth.from(record.getDate());
-            monthlyTotals.merge(month, record.getAmount(), Double::sum);
-        }
         
         // Sort months chronologically and display
         DateTimeFormatter monthFormatter = DateTimeFormatter.ofPattern("MMM yyyy");
