@@ -1,5 +1,7 @@
 package com.example.budget;
 
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +39,28 @@ public class ReportGenerator {
             report.append(String.format("%-15s: $%8.2f (%5.1f%%)\n", 
                     entry.getKey(), entry.getValue(), percentage));
         }
+
+        report.append("\n");
+        report.append("Spending by Month:\n");
+        report.append("--------------------\n");
+        
+        // Group spending by month
+        Map<YearMonth, Double> monthlyTotals = new HashMap<>();
+        for (SpendingRecord record : records) {
+            YearMonth month = YearMonth.from(record.getDate());
+            monthlyTotals.merge(month, record.getAmount(), Double::sum);
+        }
+        
+        // Sort months chronologically and display
+        DateTimeFormatter monthFormatter = DateTimeFormatter.ofPattern("MMM yyyy");
+        monthlyTotals.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .forEach(entry -> {
+                    String monthDisplay = entry.getKey().format(monthFormatter);
+                    double percentage = (entry.getValue() / totalSpending) * 100;
+                    report.append(String.format("%-15s: $%8.2f (%5.1f%%)\n", 
+                            monthDisplay, entry.getValue(), percentage));
+                });
 
         report.append("\n");
         report.append("Recent Transactions:\n");
