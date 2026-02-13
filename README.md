@@ -1,6 +1,3 @@
-# dependency-demo
-Demo repo for Hands-on Exercise for Topic 2
-
 ## Simple Budget Application
 
 A basic Maven-based Java application that allows users to upload CSV files containing spending records and generate spending reports.
